@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Birthday Surprise</title>
+  <meta name="description" content="An elegant interactive birthday surprise made just for you." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>" />
+  <meta property="og:title" content="A Birthday Surprise 🎂" />
+  <meta property="og:description" content="Someone made an interactive birthday surprise just for you. Open the gift, blow out the candles, cut the cake." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Twinkling star background -->
+  <canvas id="stars-canvas" aria-hidden="true"></canvas>
+  <!-- Confetti / fireworks layer -->
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <!-- Soft vignette + grain for depth -->
+  <div class="vignette" aria-hidden="true"></div>
+  <!-- Lights-off overlay: candlelight pool around the cake -->
+  <div id="darkness" class="darkness" aria-hidden="true"></div>
+
+  <!-- ============ SCENE 0: HOME / CREATE ============ -->
+  <section id="scene-home" class="scene">
+    <p class="greeting-eyebrow">— craft a birthday surprise —</p>
+    <h1 class="home-title">A Birthday Wish</h1>
+    <div class="gold-divider" aria-hidden="true"><span>✦</span></div>
+
+    <div class="home-form">
+      <label for="home-from">Your name</label>
+      <input id="home-from" type="text" maxlength="30" placeholder="e.g. Advik" />
+      <label for="home-name">Their name</label>
+      <input id="home-name" type="text" maxlength="30" placeholder="who's the birthday star?" />
+      <label for="home-msg">Your message (optional)</label>
+      <textarea id="home-msg" maxlength="200" rows="3" placeholder="Write something sweet…"></textarea>
+
+      <div class="home-actions">
+        <button id="home-create" class="btn btn-primary">Begin the surprise ✨</button>
+        <button id="home-copy" class="btn btn-ghost">Copy magic link 🔗</button>
+      </div>
+      <p id="home-copy-status" class="copy-status"></p>
+    </div>
+
+    <footer class="home-about">
+      <p class="about-line">crafted with <span class="about-heart">♥</span> by <strong>Advik</strong></p>
+      <div class="social-links">
+        <a href="https://x.com/Advik4u" target="_blank" rel="noopener" aria-label="Advik on X" title="@Advik4u">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a href="#" id="discord-link" aria-label="Copy Discord username" title="discord: advik4u">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.029zM8.02 15.331c-1.182 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.946 2.419-2.157 2.419z"/>
+          </svg>
+        </a>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ============ SCENE 1: GIFT BOX INTRO ============ -->
+  <section id="scene-gift" class="scene">
+    <p class="gift-hint">Someone left a surprise for you</p>
+    <button id="gift-box" class="gift-box" aria-label="Open your gift">
+      <div class="gift-lid">
+        <div class="gift-bow">
+          <span class="bow-left"></span>
+          <span class="bow-right"></span>
+          <span class="bow-knot"></span>
+        </div>
+      </div>
+      <div class="gift-body">
+        <div class="gift-ribbon"></div>
+      </div>
+    </button>
+    <p class="gift-tap">tap to open</p>
+  </section>
+
+  <!-- ============ SCENE 2: GREETING ============ -->
+  <section id="scene-greeting" class="scene">
+    <div class="greeting-wrap">
+      <p class="greeting-eyebrow">— a little celebration for —</p>
+      <h1 class="greeting-title">
+        <span id="greeting-name" class="greeting-name"></span>
+        <span class="greeting-line">Happy Birthday</span>
+      </h1>
+      <div class="gold-divider" aria-hidden="true"><span>✦</span></div>
+      <p id="typewriter" class="typewriter"></p>
+      <button id="to-cake-btn" class="btn btn-primary hidden-soft">Continue&nbsp;→</button>
+    </div>
+  </section>
+
+  <!-- ============ SCENE 3: THE CAKE ============ -->
+  <section id="scene-cake" class="scene">
+    <h2 id="cake-heading" class="scene-heading">Make a wish &amp; blow out the candles</h2>
+    <p id="blow-hint" class="blow-hint">🎤 Blow into your microphone… or tap the flames</p>
+
+    <div class="cake-stage">
+      <!-- Knife for the cutting ceremony -->
+      <div id="knife" class="knife hidden" role="button" aria-label="Cut the cake" tabindex="0">
+        <div class="knife-handle"></div>
+        <div class="knife-blade"></div>
+      </div>
+
+      <div id="cake" class="cake">
+        <div class="candles" id="candles"><!-- candles injected by JS --></div>
+        <div class="layer layer-top"><div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div></div>
+        <div class="layer layer-mid"><div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div></div>
+        <div class="layer layer-bottom"></div>
+        <div id="cut-notch" class="cut-notch"></div>
+        <div class="cake-plate"></div>
+      </div>
+
+      <!-- The cut slice, served beside the cake -->
+      <div id="slice" class="slice" aria-hidden="true">
+        <div class="slice-wedge">
+          <div class="slice-stripe s1"></div>
+          <div class="slice-stripe s2"></div>
+          <div class="slice-stripe s3"></div>
+          <div class="slice-frosting"></div>
+        </div>
+        <div class="slice-plate"></div>
+      </div>
+
+      <div id="smoke-container" class="smoke-container"></div>
+    </div>
+
+    <p id="candles-left" class="candles-left"></p>
+  </section>
+
+  <!-- ============ SCENE 4: CELEBRATION ============ -->
+  <section id="scene-party" class="scene">
+    <div class="party-wrap">
+      <h2 class="party-title">Hip hip hooray!</h2>
+      <p id="party-message" class="party-message"></p>
+
+      <div class="wish-cards" id="wish-cards">
+        <button class="wish-card" data-wish="May your year sparkle brighter than these fireworks. ✨">✨<span>Tap me</span></button>
+        <button class="wish-card" data-wish="Wishing you a year full of laughter, love and cake. 🍰">🍰<span>Tap me</span></button>
+        <button class="wish-card" data-wish="May every dream you wish for tonight come true. 🌙">🌙<span>Tap me</span></button>
+        <button class="wish-card" data-wish="Stay awesome — the world is lucky to have you! 🌍">💖<span>Tap me</span></button>
+      </div>
+
+      <div class="party-actions">
+        <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
+        <button id="replay-btn" class="btn btn-ghost">↺ Replay</button>
+      </div>
+    </div>
+
+    <!-- A wandering firefly of light that leads back to the homepage -->
+    <button id="guide-light" class="guide-light" aria-label="Follow the light to create your own surprise">
+      <span class="guide-orb"></span>
+      <span class="guide-label">follow the light — make your own wish</span>
+    </button>
+  </section>
+
+  <!-- Floating balloons layer -->
+  <div id="balloons" class="balloons" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
