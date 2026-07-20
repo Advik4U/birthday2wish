@@ -19,6 +19,7 @@
   <canvas id="stars-canvas" aria-hidden="true"></canvas>
   <canvas id="fx-canvas" aria-hidden="true"></canvas>
   <div class="vignette" aria-hidden="true"></div>
+  <div id="darkness" class="darkness" aria-hidden="true"></div>
 
   <!-- RINGING -->
   <section id="scene-ring" class="scene active">
@@ -50,7 +51,7 @@
     </div>
   </section>
 
-  <!-- DECLINED: still deliver the typed message -->
+  <!-- DECLINED -->
   <section id="scene-declined" class="scene">
     <div class="end-card">
       <p class="call-eyebrow">missed call</p>
@@ -62,7 +63,7 @@
     </div>
   </section>
 
-  <!-- IN CALL: video as the call -->
+  <!-- IN CALL: video -->
   <section id="scene-active" class="scene">
     <div class="phone phone-connected">
       <div class="phone-notch" aria-hidden="true"></div>
@@ -86,68 +87,91 @@
       </div>
       <p id="call-caption" class="call-caption"></p>
       <div class="in-call-actions">
-        <button id="hangup-btn" class="call-btn decline hangup" type="button" aria-label="Hang up">
-          <span class="call-btn-icon">📞</span>
-          <span class="call-btn-label">End</span>
+        <button id="continue-btn" class="btn btn-primary continue-cta" type="button">
+          Let’s move to the cake →
         </button>
       </div>
     </div>
   </section>
 
-  <!-- AFTER THE CALL: hangup → voicemail → celebration -->
-  <section id="scene-ended" class="scene">
-    <!-- Phase 1: hangup beat -->
-    <div id="phase-hangup" class="after-phase">
-      <p class="call-eyebrow">call ended</p>
-      <h2 class="hangup-title">Line quiet…</h2>
-      <p class="hangup-sub">but something was left behind for you</p>
+  <!-- BRIDGE -->
+  <section id="scene-bridge" class="scene">
+    <p class="call-eyebrow">next chapter</p>
+    <h2 class="hangup-title">The call became a celebration</h2>
+    <p class="hangup-sub">Candles are waiting for your breath…</p>
+  </section>
+
+  <!-- CAKE: blow + cut -->
+  <section id="scene-cake" class="scene">
+    <h2 id="cake-heading" class="scene-heading">Make a wish &amp; blow out the candles</h2>
+    <p id="blow-hint" class="blow-hint">🎤 Blow into your microphone… or tap the flames</p>
+
+    <div class="cake-stage">
+      <div id="knife" class="knife hidden" role="button" aria-label="Cut the cake" tabindex="0">
+        <div class="knife-handle"></div>
+        <div class="knife-blade"></div>
+      </div>
+
+      <div id="cake" class="cake">
+        <div class="candles" id="candles"></div>
+        <div class="layer layer-top"><div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div></div>
+        <div class="layer layer-mid"><div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div></div>
+        <div class="layer layer-bottom"></div>
+        <div id="cut-notch" class="cut-notch"></div>
+        <div class="cake-plate"></div>
+      </div>
+
+      <div id="slice" class="slice" aria-hidden="true">
+        <div class="slice-wedge">
+          <div class="slice-stripe s1"></div>
+          <div class="slice-stripe s2"></div>
+          <div class="slice-stripe s3"></div>
+          <div class="slice-frosting"></div>
+        </div>
+        <div class="slice-plate"></div>
+      </div>
+
+      <div id="smoke-container" class="smoke-container"></div>
     </div>
 
-    <!-- Phase 2: voicemail / forever message -->
-    <div id="phase-voicemail" class="after-phase hidden">
-      <div class="voicemail-card">
-        <p class="call-eyebrow">new voicemail</p>
-        <div class="waveform" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span><span></span>
+    <p id="candles-left" class="candles-left"></p>
+  </section>
+
+  <!-- FINALE: constellation seal -->
+  <section id="scene-finale" class="scene">
+    <div class="finale-wrap">
+      <p class="call-eyebrow">wish sealed</p>
+      <div class="constellation" id="constellation" aria-hidden="true">
+        <span class="c-star" style="--i:0"></span>
+        <span class="c-star" style="--i:1"></span>
+        <span class="c-star" style="--i:2"></span>
+        <span class="c-star" style="--i:3"></span>
+        <span class="c-star" style="--i:4"></span>
+        <span class="c-star" style="--i:5"></span>
+        <span class="c-star" style="--i:6"></span>
+        <span class="c-star" style="--i:7"></span>
+        <span class="c-star" style="--i:8"></span>
+        <span class="c-star" style="--i:9"></span>
+        <span class="c-star" style="--i:10"></span>
+        <span class="c-star" style="--i:11"></span>
+        <div class="constellation-core">
+          <p class="core-label">forever in the stars</p>
+          <h2 id="finale-name" class="end-title sender">Friend</h2>
+          <p class="core-from">sealed by <strong id="finale-from">Someone</strong></p>
         </div>
-        <p class="vm-from">From <span id="vm-from" class="sender">Someone</span></p>
-        <p id="vm-transcript" class="vm-transcript"></p>
-        <button id="vm-continue-btn" class="btn btn-primary hidden-soft">Open your after-party ✨</button>
+      </div>
+      <p id="finale-msg" class="finale-msg"></p>
+      <p class="party-lead">Tap the constellation to light the sky</p>
+      <div class="party-actions">
+        <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
+        <button id="replay-call-btn" class="btn btn-ghost">↺ Start over</button>
       </div>
     </div>
 
-    <!-- Phase 3: birthday after-party -->
-    <div id="phase-party" class="after-phase hidden">
-      <div class="party-wrap">
-        <p class="call-eyebrow">the after-party</p>
-        <h2 class="end-title">
-          Happy Birthday,
-          <span id="end-name" class="sender">Friend</span>
-        </h2>
-        <p class="party-lead">Tap each star — they hold a wish from the call</p>
-
-        <div class="wish-stars" id="wish-stars">
-          <button class="wish-star" type="button" data-wish="May your year sparkle louder than fireworks. ✨">✦</button>
-          <button class="wish-star" type="button" data-wish="Laughter on loop. Cake on demand. Love on repeat. 🎂">✦</button>
-          <button class="wish-star" type="button" data-wish="Every dream you whispered tonight — noted by the stars. 🌙">✦</button>
-          <button class="wish-star" type="button" data-wish="Stay wildly you. The world needs that energy. 💖">✦</button>
-        </div>
-        <p id="star-reveal" class="star-reveal"></p>
-
-        <div class="party-actions">
-          <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
-          <button id="replay-call-btn" class="btn btn-ghost">↺ Call again</button>
-        </div>
-        <p class="end-from">Saved forever · wish from <strong id="end-from">Someone</strong></p>
-      </div>
-
-      <button id="guide-light" class="guide-light" type="button" aria-label="Follow the light home">
-        <span class="guide-orb"></span>
-        <span class="guide-label">follow the light — make your own wish</span>
-      </button>
-    </div>
+    <button id="guide-light" class="guide-light" type="button" aria-label="Follow the light home">
+      <span class="guide-orb"></span>
+      <span class="guide-label">follow the light — make your own wish</span>
+    </button>
   </section>
 
   <div id="balloons" class="balloons" aria-hidden="true"></div>

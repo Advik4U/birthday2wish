@@ -1,4 +1,4 @@
-/* Incoming Birthday Call */
+/* Incoming Birthday Call → Cake → Constellation finale */
 
 const params = new URLSearchParams(location.search);
 const NAME =
@@ -7,21 +7,21 @@ const NAME =
 const FROM = (params.get("from") || "").trim().slice(0, 30);
 const MSG = (params.get("msg") || "").trim().slice(0, 200);
 const VIDEO_RAW = (params.get("v") || params.get("video") || "").trim();
-
 const CALLER = FROM || "Someone";
-const DEFAULT_END =
-  "I couldn’t say it all on the call — so here it is forever: " +
-  "may this year find you laughing harder, dreaming bigger, and feeling deeply loved.";
+const DEFAULT_MSG =
+  "May this year find you laughing harder, dreaming bigger, and feeling deeply loved.";
 
 const scenes = {
   ring: document.getElementById("scene-ring"),
   declined: document.getElementById("scene-declined"),
   active: document.getElementById("scene-active"),
-  ended: document.getElementById("scene-ended"),
+  bridge: document.getElementById("scene-bridge"),
+  cake: document.getElementById("scene-cake"),
+  finale: document.getElementById("scene-finale"),
 };
 
 function showScene(key) {
-  Object.values(scenes).forEach((s) => s.classList.remove("active"));
+  Object.values(scenes).forEach((s) => s?.classList.remove("active"));
   scenes[key].classList.add("active");
 }
 
@@ -95,6 +95,14 @@ function confettiRain(count = 140) {
     });
   }
 }
+function firework() {
+  burstConfetti(
+    innerWidth * (0.15 + Math.random() * 0.7),
+    innerHeight * (0.12 + Math.random() * 0.35),
+    55,
+    6
+  );
+}
 function tickFx() {
   fx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
   particles = particles.filter((p) => p.life > 0 && p.y < innerHeight + 40);
@@ -128,7 +136,6 @@ let ringTimer = null;
 function playRingTone() {
   const ctx = getAudio();
   const now = ctx.currentTime;
-  // classic two-tone ringtone chirp
   [[880, 0], [1046.5, 0.18]].forEach(([freq, delay]) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -167,20 +174,6 @@ function playAnswerClick() {
   osc.start();
   osc.stop(ctx.currentTime + 0.2);
 }
-function playHangup() {
-  const ctx = getAudio();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(340, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.35);
-  gain.gain.setValueAtTime(0.15, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + 0.42);
-}
-
 function playSparkle() {
   const ctx = getAudio();
   [880, 1174.7, 1568].forEach((f, i) => {
@@ -196,7 +189,6 @@ function playSparkle() {
     osc.stop(t + 0.45);
   });
 }
-
 function playPop() {
   const ctx = getAudio();
   const osc = ctx.createOscillator();
@@ -210,18 +202,41 @@ function playPop() {
   osc.start();
   osc.stop(ctx.currentTime + 0.15);
 }
-
-function playVoicemailBeep() {
+function playPuff() {
   const ctx = getAudio();
-  const osc = ctx.createOscillator();
+  const dur = 0.2;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 900;
   const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.value = 740;
-  gain.gain.setValueAtTime(0.14, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + 0.6);
+  gain.gain.setValueAtTime(0.22, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start();
+}
+function playSlice() {
+  const ctx = getAudio();
+  const dur = 0.5;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(2400, ctx.currentTime);
+  filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + dur);
+  filter.Q.value = 0.9;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.3, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start();
 }
 
 const MELODY = [
@@ -264,6 +279,7 @@ function playBirthdaySong() {
 /* ---------- Balloons ---------- */
 const balloonLayer = document.getElementById("balloons");
 let balloonTimer = null;
+let fireworkTimer = null;
 function spawnBalloon() {
   const b = document.createElement("div");
   b.className = "balloon";
@@ -294,103 +310,32 @@ function stopBalloons() {
   balloonLayer.innerHTML = "";
 }
 
-function firework() {
-  burstConfetti(
-    innerWidth * (0.15 + Math.random() * 0.7),
-    innerHeight * (0.12 + Math.random() * 0.35),
-    55,
-    6
-  );
-}
-
-/* ---------- Video URL parsing ---------- */
+/* ---------- Video ---------- */
 function parseVideoEmbed(raw) {
   if (!raw) return { kind: "none" };
   let url;
-  try {
-    url = new URL(raw);
-  } catch {
-    return { kind: "external", href: raw };
-  }
+  try { url = new URL(raw); } catch { return { kind: "external", href: raw }; }
   const host = url.hostname.replace(/^www\./, "");
-
-  // YouTube
   if (host === "youtu.be") {
     const id = url.pathname.slice(1).split("/")[0];
-    if (id) {
-      return {
-        kind: "iframe",
-        src: `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`,
-      };
-    }
+    if (id) return { kind: "iframe", src: `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1` };
   }
   if (host.includes("youtube.com") || host.includes("youtube-nocookie.com")) {
     let id = url.searchParams.get("v");
     if (!id && url.pathname.startsWith("/shorts/")) id = url.pathname.split("/")[2];
     if (!id && url.pathname.startsWith("/embed/")) id = url.pathname.split("/")[2];
-    if (id) {
-      return {
-        kind: "iframe",
-        src: `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`,
-      };
-    }
+    if (id) return { kind: "iframe", src: `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&playsinline=1` };
   }
-
-  // Google Drive
   if (host.includes("drive.google.com")) {
     const fileMatch = url.pathname.match(/\/file\/d\/([^/]+)/);
     const id = fileMatch?.[1] || url.searchParams.get("id");
-    if (id) {
-      return {
-        kind: "iframe",
-        src: `https://drive.google.com/file/d/${id}/preview`,
-      };
-    }
+    if (id) return { kind: "iframe", src: `https://drive.google.com/file/d/${id}/preview` };
   }
-
-  // Dropbox → raw-ish
   if (host.includes("dropbox.com")) {
     url.searchParams.set("raw", "1");
     return { kind: "external", href: url.toString() };
   }
-
-  // direct media
-  if (/\.(mp4|webm|ogg)(\?|$)/i.test(url.pathname)) {
-    return { kind: "external", href: raw };
-  }
-
   return { kind: "external", href: raw };
-}
-
-/* ---------- Call timer ---------- */
-let timerId = null;
-let seconds = 0;
-function startTimer() {
-  seconds = 0;
-  const el = document.getElementById("call-timer");
-  el.textContent = "00:00";
-  clearInterval(timerId);
-  timerId = setInterval(() => {
-    seconds++;
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    el.textContent = `${m}:${s}`;
-  }, 1000);
-}
-function stopTimer() {
-  clearInterval(timerId);
-  timerId = null;
-}
-
-/* ---------- Flow ---------- */
-function fillCallerUI() {
-  const nameEl = document.getElementById("caller-name");
-  nameEl.textContent = CALLER;
-  document.getElementById("caller-avatar").textContent = CALLER.charAt(0).toUpperCase();
-  document.getElementById("end-name").textContent = NAME;
-  document.getElementById("end-from").textContent = CALLER;
-  document.getElementById("vm-from").textContent = CALLER;
-  document.title = `${CALLER} is calling…`;
 }
 
 function loadVideo() {
@@ -398,7 +343,6 @@ function loadVideo() {
   const iframe = document.getElementById("wish-video");
   const fallback = document.getElementById("video-fallback");
   const openBtn = document.getElementById("open-video-btn");
-
   if (parsed.kind === "iframe") {
     iframe.src = parsed.src;
     iframe.classList.remove("hidden");
@@ -412,14 +356,39 @@ function loadVideo() {
     iframe.removeAttribute("src");
     iframe.classList.add("hidden");
     fallback.classList.remove("hidden");
-    openBtn.href = "#";
-    openBtn.textContent = "No video linked";
     openBtn.classList.add("hidden");
-    fallback.querySelector("p").textContent = "This call has no video link — enjoy the birthday message instead.";
+    fallback.querySelector("p").textContent = "No video linked — continue to the cake celebration.";
   }
+  document.getElementById("call-caption").textContent = MSG || "";
+}
 
-  const caption = document.getElementById("call-caption");
-  caption.textContent = MSG || "";
+/* ---------- Call timer ---------- */
+let timerId = null;
+let seconds = 0;
+function startTimer() {
+  seconds = 0;
+  const el = document.getElementById("call-timer");
+  el.textContent = "00:00";
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    seconds++;
+    el.textContent =
+      `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  }, 1000);
+}
+function stopTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+/* ---------- Call flow ---------- */
+function fillCallerUI() {
+  document.getElementById("caller-name").textContent = CALLER;
+  document.getElementById("caller-avatar").textContent = CALLER.charAt(0).toUpperCase();
+  document.getElementById("finale-name").textContent = NAME;
+  document.getElementById("finale-from").textContent = CALLER;
+  document.getElementById("finale-msg").textContent = MSG || DEFAULT_MSG;
+  document.title = `${CALLER} is calling…`;
 }
 
 function answerCall() {
@@ -428,118 +397,241 @@ function answerCall() {
   loadVideo();
   showScene("active");
   startTimer();
-  if (navigator.vibrate) navigator.vibrate(40);
 }
 
 function declineCall() {
   stopRinging();
-  playHangup();
   const msg = document.getElementById("declined-msg");
-  msg.textContent = MSG || `${CALLER} tried to reach you with a birthday wish. Answer anyway to see their video.`;
+  msg.textContent = MSG || `${CALLER} tried to reach you with a birthday wish. Answer anyway to continue.`;
   document.getElementById("declined-from").textContent = `— ${CALLER}`;
   showScene("declined");
 }
 
-function showAfterPhase(id) {
-  ["phase-hangup", "phase-voicemail", "phase-party"].forEach((pid) => {
-    document.getElementById(pid).classList.toggle("hidden", pid !== id);
-  });
+function goToCake() {
+  stopTimer();
+  stopRinging();
+  playSparkle();
+  document.getElementById("wish-video").src = "";
+  showScene("bridge");
+  setTimeout(() => {
+    showScene("cake");
+    setupCake();
+    requestAnimationFrame(positionCandleGlow);
+    setTimeout(() => document.body.classList.add("lights-off"), 700);
+  }, 2200);
 }
 
-function typeVoicemail(text, done) {
-  const el = document.getElementById("vm-transcript");
-  const card = document.querySelector(".voicemail-card");
-  el.textContent = "";
-  el.classList.remove("done");
-  card.classList.add("playing");
-  let i = 0;
-  (function step() {
-    if (i <= text.length) {
-      el.textContent = text.slice(0, i++);
-      setTimeout(step, 36);
-    } else {
-      el.classList.add("done");
-      card.classList.remove("playing");
-      done?.();
-    }
-  })();
+/* ---------- Cake ---------- */
+const CANDLE_COUNT = 5;
+const candlesEl = document.getElementById("candles");
+const candlesLeftEl = document.getElementById("candles-left");
+const blowHint = document.getElementById("blow-hint");
+const knife = document.getElementById("knife");
+let candlesLit = 0;
+let micStream = null;
+let cakeDone = false;
+let cutting = false;
+
+function positionCandleGlow() {
+  const cakeRect = document.getElementById("cake").getBoundingClientRect();
+  const darkness = document.getElementById("darkness");
+  darkness.style.setProperty("--glow-x", cakeRect.left + cakeRect.width / 2 + "px");
+  darkness.style.setProperty("--glow-y", cakeRect.top + 70 + "px");
 }
 
-let fireworkTimer = null;
-function startAfterParty() {
-  showAfterPhase("phase-party");
+function setupCake() {
+  cakeDone = false;
+  cutting = false;
+  candlesEl.innerHTML = "";
+  candlesLit = CANDLE_COUNT;
+  document.getElementById("cake-heading").textContent = "Make a wish & blow out the candles";
+  knife.classList.add("hidden");
+  knife.classList.remove("cutting", "done");
+  document.getElementById("cut-notch").classList.remove("visible");
+  document.getElementById("slice").classList.remove("served");
+  blowHint.textContent = "🎤 Blow into your microphone… or tap the flames";
+
+  const candleColors = ["#e6c27a", "#d98ba0", "#b8924a", "#c9a3b5", "#e6c27a"];
+  for (let i = 0; i < CANDLE_COUNT; i++) {
+    const c = document.createElement("div");
+    c.className = "candle";
+    c.style.setProperty("--candle-color", candleColors[i % candleColors.length]);
+    c.style.height = 40 + ((i * 7) % 14) + "px";
+    const f = document.createElement("div");
+    f.className = "flame";
+    f.style.animationDelay = Math.random() * 0.2 + "s";
+    c.appendChild(f);
+    c.addEventListener("pointerdown", () => extinguish(c));
+    candlesEl.appendChild(c);
+  }
+  updateCandleCounter();
+  startMic();
+}
+
+function updateCandleCounter() {
+  const cheer = {
+    5: "5 candles glowing — take a deep breath…",
+    4: "4 to go — keep blowing!",
+    3: "3 left — you're doing great!",
+    2: "just 2 more!",
+    1: "one more — big breath! 🌬",
+    0: "Your wish is on its way… 💫",
+  };
+  candlesLeftEl.textContent = cheer[candlesLit] ?? "";
+}
+
+function extinguish(candle) {
+  if (cakeDone || candle.classList.contains("out")) return;
+  candle.classList.add("out");
+  candlesLit--;
+  playPuff();
+  const rect = candle.getBoundingClientRect();
+  burstConfetti(rect.left + rect.width / 2, rect.top - 20, 12, 3);
+  const stage = document.querySelector(".cake-stage").getBoundingClientRect();
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement("div");
+    s.className = "smoke";
+    s.style.left = rect.left - stage.left + rect.width / 2 - 5 + "px";
+    s.style.top = rect.top - stage.top - 20 + "px";
+    s.style.animationDelay = i * 0.15 + "s";
+    document.getElementById("smoke-container").appendChild(s);
+    setTimeout(() => s.remove(), 1800 + i * 150);
+  }
+  updateCandleCounter();
+  if (candlesLit === 0) {
+    cakeDone = true;
+    stopMic();
+    candlesEl.classList.remove("wavering");
+    blowHint.classList.remove("listening");
+    blowHint.textContent = "Close your eyes… make your wish 🌠";
+    setTimeout(() => document.body.classList.remove("lights-off"), 1400);
+    setTimeout(startCutting, 3200);
+  }
+}
+
+function startCutting() {
+  document.getElementById("cake-heading").textContent = "Now, the cake-cutting ceremony";
+  blowHint.textContent = "Tap the knife to cut the first slice 🔪";
+  candlesLeftEl.textContent = "";
+  knife.classList.remove("hidden", "cutting", "done");
+  cutting = false;
+}
+
+function cutCake() {
+  if (cutting || knife.classList.contains("hidden")) return;
+  cutting = true;
+  blowHint.textContent = "";
+  knife.classList.add("cutting");
+  setTimeout(playSlice, 500);
+  setTimeout(playSlice, 1400);
+  setTimeout(() => {
+    document.getElementById("cut-notch").classList.add("visible");
+    const cakeRect = document.getElementById("cake").getBoundingClientRect();
+    burstConfetti(cakeRect.left + cakeRect.width * 0.66, cakeRect.top + 60, 40, 5);
+    playSparkle();
+  }, 2000);
+  setTimeout(() => {
+    knife.classList.add("done");
+    document.getElementById("slice").classList.add("served");
+    candlesLeftEl.textContent = "The first slice, served with love 🍰";
+  }, 2800);
+  setTimeout(startFinale, 5000);
+}
+
+function extinguishRandomLit() {
+  const lit = [...candlesEl.querySelectorAll(".candle:not(.out)")];
+  if (lit.length) extinguish(lit[(Math.random() * lit.length) | 0]);
+}
+
+async function startMic() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    blowHint.textContent = "🖱 Tap the flames to blow them out!";
+    return;
+  }
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = getAudio();
+    const source = ctx.createMediaStreamSource(micStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    blowHint.classList.add("listening");
+    blowHint.textContent = "🎤 I'm listening… blow now!";
+    let loudFrames = 0;
+    let lastBlowAt = 0;
+    (function listen() {
+      if (cakeDone || !micStream) {
+        candlesEl.classList.remove("wavering");
+        return;
+      }
+      analyser.getByteFrequencyData(data);
+      const lowEnd = data.slice(2, 40);
+      const avg = lowEnd.reduce((a, b) => a + b, 0) / lowEnd.length;
+      candlesEl.classList.toggle("wavering", avg > 60);
+      if (avg > 110) {
+        loudFrames++;
+        if (loudFrames > 4 && performance.now() - lastBlowAt > 650) {
+          extinguishRandomLit();
+          lastBlowAt = performance.now();
+          loudFrames = 0;
+        }
+      } else {
+        loudFrames = Math.max(0, loudFrames - 1);
+      }
+      requestAnimationFrame(listen);
+    })();
+  } catch {
+    blowHint.classList.remove("listening");
+    blowHint.textContent = "🖱 Mic unavailable — tap the flames instead!";
+  }
+}
+
+function stopMic() {
+  if (micStream) {
+    micStream.getTracks().forEach((t) => t.stop());
+    micStream = null;
+  }
+}
+
+/* ---------- Finale: constellation seal ---------- */
+function startFinale() {
+  document.body.classList.remove("lights-off");
+  showScene("finale");
   confettiRain(180);
   startBalloons();
   playBirthdaySong();
   fireworkTimer = setInterval(firework, 1500);
   setTimeout(() => clearInterval(fireworkTimer), 14000);
-  // reveal guide light after a beat
-  setTimeout(() => {
-    document.getElementById("guide-light").style.opacity = "1";
-  }, 1800);
+  playSparkle();
 }
 
-function endCall() {
-  stopTimer();
-  playHangup();
-  const iframe = document.getElementById("wish-video");
-  iframe.src = "";
-  stopBalloons();
-  clearInterval(fireworkTimer);
-
-  // reset party bits
-  document.getElementById("star-reveal").textContent = "";
-  document.querySelectorAll(".wish-star").forEach((s) => {
-    s.classList.remove("opened");
-    s.textContent = "✦";
-  });
-  const vmBtn = document.getElementById("vm-continue-btn");
-  vmBtn.classList.add("hidden-soft");
-
-  showScene("ended");
-  showAfterPhase("phase-hangup");
-  burstConfetti(innerWidth / 2, innerHeight * 0.4, 40, 5);
-
-  // hangup beat → voicemail
-  setTimeout(() => {
-    showAfterPhase("phase-voicemail");
-    playVoicemailBeep();
-    const text = MSG || DEFAULT_END;
-    setTimeout(() => {
-      typeVoicemail(text, () => {
-        setTimeout(() => vmBtn.classList.remove("hidden-soft"), 500);
-      });
-    }, 600);
-  }, 2200);
-}
-
+/* ---------- Events ---------- */
 document.getElementById("answer-btn").addEventListener("click", answerCall);
 document.getElementById("answer-anyway-btn").addEventListener("click", answerCall);
 document.getElementById("decline-btn").addEventListener("click", declineCall);
-document.getElementById("hangup-btn").addEventListener("click", endCall);
-
-document.getElementById("vm-continue-btn").addEventListener("click", () => {
-  playSparkle();
-  startAfterParty();
+document.getElementById("continue-btn").addEventListener("click", goToCake);
+knife.addEventListener("click", cutCake);
+knife.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") cutCake();
 });
 
-document.querySelectorAll(".wish-star").forEach((star) => {
-  star.addEventListener("click", () => {
-    if (star.classList.contains("opened")) return;
-    star.classList.add("opened");
-    star.textContent = "★";
-    document.getElementById("star-reveal").textContent = star.dataset.wish;
-    playSparkle();
-    const r = star.getBoundingClientRect();
-    burstConfetti(r.left + r.width / 2, r.top, 28, 5);
-  });
+document.getElementById("constellation").addEventListener("click", () => {
+  const el = document.getElementById("constellation");
+  if (el.classList.contains("burst")) return;
+  el.classList.add("burst");
+  playSparkle();
+  confettiRain(120);
+  for (let i = 0; i < 4; i++) setTimeout(firework, i * 280);
+  setTimeout(() => el.classList.remove("burst"), 1200);
 });
 
 document.getElementById("music-btn").addEventListener("click", playBirthdaySong);
-
 document.getElementById("replay-call-btn").addEventListener("click", () => {
   stopBalloons();
+  stopMic();
   clearInterval(fireworkTimer);
+  document.body.classList.remove("lights-off");
   particles = [];
   fillCallerUI();
   showScene("ring");
@@ -559,15 +651,12 @@ resizeFx();
 addEventListener("resize", () => {
   initStars();
   resizeFx();
+  if (scenes.cake.classList.contains("active")) positionCandleGlow();
 });
 requestAnimationFrame(drawStars);
 requestAnimationFrame(tickFx);
 
-try {
-  startRinging();
-} catch {
-  /* wait for tap */
-}
+try { startRinging(); } catch { /* wait for tap */ }
 document.body.addEventListener(
   "pointerdown",
   () => {
@@ -577,5 +666,5 @@ document.body.addEventListener(
 );
 
 if (!VIDEO_RAW) {
-  document.getElementById("ring-hint").textContent = "Answer to open their birthday message";
+  document.getElementById("ring-hint").textContent = "Answer — then continue to the cake";
 }

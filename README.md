@@ -11,13 +11,15 @@ Zero-dependency birthday surprises built with vanilla HTML, CSS and JavaScript. 
 4. Cake-cutting ceremony  
 5. Celebration with song, balloons, wish cards  
 
-### Birthday Call (new)
+### Birthday Call
+
 1. Incoming call UI — “[Sender] is calling…” with ringtone  
 2. Answer → their pasted video plays inside the phone call  
-3. Decline still delivers the typed birthday note  
-4. Hang up → Happy Birthday end card + guiding light home  
+3. **Let’s move to the cake** → candle blowout (mic or tap) → cake cutting  
+4. **Wish constellation finale** — name sealed in the stars; tap to light the sky  
+5. Guiding light home  
 
-Supported video links: YouTube (primary), Google Drive preview, Dropbox / direct links (open fallback).
+Decline still delivers the typed birthday note + Answer anyway.
 
 ## Home page
 
