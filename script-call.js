@@ -10,7 +10,8 @@ const VIDEO_RAW = (params.get("v") || params.get("video") || "").trim();
 
 const CALLER = FROM || "Someone";
 const DEFAULT_END =
-  "The line went quiet, but the wish stays with you. May this year ring with joy.";
+  "I couldn’t say it all on the call — so here it is forever: " +
+  "may this year find you laughing harder, dreaming bigger, and feeling deeply loved.";
 
 const scenes = {
   ring: document.getElementById("scene-ring"),
@@ -180,6 +181,128 @@ function playHangup() {
   osc.stop(ctx.currentTime + 0.42);
 }
 
+function playSparkle() {
+  const ctx = getAudio();
+  [880, 1174.7, 1568].forEach((f, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = f;
+    const t = ctx.currentTime + i * 0.07;
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.45);
+  });
+}
+
+function playPop() {
+  const ctx = getAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(600 + Math.random() * 300, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.12);
+  gain.gain.setValueAtTime(0.22, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.14);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.15);
+}
+
+function playVoicemailBeep() {
+  const ctx = getAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = 740;
+  gain.gain.setValueAtTime(0.14, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.6);
+}
+
+const MELODY = [
+  [7, 0.75], [7, 0.25], [9, 1], [7, 1], [12, 1], [11, 2],
+  [7, 0.75], [7, 0.25], [9, 1], [7, 1], [14, 1], [12, 2],
+  [7, 0.75], [7, 0.25], [19, 1], [16, 1], [12, 1], [11, 1], [9, 2],
+  [17, 0.75], [17, 0.25], [16, 1], [12, 1], [14, 1], [12, 2],
+];
+let songPlaying = false;
+function playBirthdaySong() {
+  if (songPlaying) return;
+  songPlaying = true;
+  const ctx = getAudio();
+  const beat = 0.42;
+  let t = ctx.currentTime + 0.1;
+  const master = ctx.createGain();
+  master.gain.value = 0.22;
+  master.connect(ctx.destination);
+  for (const [semi, beats] of MELODY) {
+    const freq = 261.63 * Math.pow(2, semi / 12);
+    const dur = beats * beat;
+    [[freq, "triangle", 1], [freq * 2, "sine", 0.25]].forEach(([f, type, vol]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(vol, t + 0.03);
+      gain.gain.setValueAtTime(vol, t + dur * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.95);
+      osc.connect(gain).connect(master);
+      osc.start(t);
+      osc.stop(t + dur);
+    });
+    t += dur;
+  }
+  setTimeout(() => { songPlaying = false; }, (t - ctx.currentTime) * 1000);
+}
+
+/* ---------- Balloons ---------- */
+const balloonLayer = document.getElementById("balloons");
+let balloonTimer = null;
+function spawnBalloon() {
+  const b = document.createElement("div");
+  b.className = "balloon";
+  b.style.left = Math.random() * 88 + 2 + "vw";
+  b.style.background = COLORS[(Math.random() * COLORS.length) | 0];
+  b.style.animationDuration = 7 + Math.random() * 6 + "s";
+  b.addEventListener("pointerdown", () => {
+    if (b.classList.contains("pop")) return;
+    b.classList.add("pop");
+    playPop();
+    const rect = b.getBoundingClientRect();
+    burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, 5);
+    setTimeout(() => b.remove(), 200);
+  });
+  b.addEventListener("animationend", (e) => {
+    if (e.animationName === "floatUp") b.remove();
+  });
+  balloonLayer.appendChild(b);
+}
+function startBalloons() {
+  if (balloonTimer) return;
+  spawnBalloon();
+  balloonTimer = setInterval(spawnBalloon, 1700);
+}
+function stopBalloons() {
+  clearInterval(balloonTimer);
+  balloonTimer = null;
+  balloonLayer.innerHTML = "";
+}
+
+function firework() {
+  burstConfetti(
+    innerWidth * (0.15 + Math.random() * 0.7),
+    innerHeight * (0.12 + Math.random() * 0.35),
+    55,
+    6
+  );
+}
+
 /* ---------- Video URL parsing ---------- */
 function parseVideoEmbed(raw) {
   if (!raw) return { kind: "none" };
@@ -266,7 +389,7 @@ function fillCallerUI() {
   document.getElementById("caller-avatar").textContent = CALLER.charAt(0).toUpperCase();
   document.getElementById("end-name").textContent = NAME;
   document.getElementById("end-from").textContent = CALLER;
-  document.getElementById("end-message").textContent = MSG || DEFAULT_END;
+  document.getElementById("vm-from").textContent = CALLER;
   document.title = `${CALLER} is calling…`;
 }
 
@@ -317,21 +440,106 @@ function declineCall() {
   showScene("declined");
 }
 
+function showAfterPhase(id) {
+  ["phase-hangup", "phase-voicemail", "phase-party"].forEach((pid) => {
+    document.getElementById(pid).classList.toggle("hidden", pid !== id);
+  });
+}
+
+function typeVoicemail(text, done) {
+  const el = document.getElementById("vm-transcript");
+  const card = document.querySelector(".voicemail-card");
+  el.textContent = "";
+  el.classList.remove("done");
+  card.classList.add("playing");
+  let i = 0;
+  (function step() {
+    if (i <= text.length) {
+      el.textContent = text.slice(0, i++);
+      setTimeout(step, 36);
+    } else {
+      el.classList.add("done");
+      card.classList.remove("playing");
+      done?.();
+    }
+  })();
+}
+
+let fireworkTimer = null;
+function startAfterParty() {
+  showAfterPhase("phase-party");
+  confettiRain(180);
+  startBalloons();
+  playBirthdaySong();
+  fireworkTimer = setInterval(firework, 1500);
+  setTimeout(() => clearInterval(fireworkTimer), 14000);
+  // reveal guide light after a beat
+  setTimeout(() => {
+    document.getElementById("guide-light").style.opacity = "1";
+  }, 1800);
+}
+
 function endCall() {
   stopTimer();
   playHangup();
   const iframe = document.getElementById("wish-video");
   iframe.src = "";
+  stopBalloons();
+  clearInterval(fireworkTimer);
+
+  // reset party bits
+  document.getElementById("star-reveal").textContent = "";
+  document.querySelectorAll(".wish-star").forEach((s) => {
+    s.classList.remove("opened");
+    s.textContent = "✦";
+  });
+  const vmBtn = document.getElementById("vm-continue-btn");
+  vmBtn.classList.add("hidden-soft");
+
   showScene("ended");
-  confettiRain(160);
-  burstConfetti(innerWidth / 2, innerHeight * 0.35, 80, 8);
+  showAfterPhase("phase-hangup");
+  burstConfetti(innerWidth / 2, innerHeight * 0.4, 40, 5);
+
+  // hangup beat → voicemail
+  setTimeout(() => {
+    showAfterPhase("phase-voicemail");
+    playVoicemailBeep();
+    const text = MSG || DEFAULT_END;
+    setTimeout(() => {
+      typeVoicemail(text, () => {
+        setTimeout(() => vmBtn.classList.remove("hidden-soft"), 500);
+      });
+    }, 600);
+  }, 2200);
 }
 
 document.getElementById("answer-btn").addEventListener("click", answerCall);
 document.getElementById("answer-anyway-btn").addEventListener("click", answerCall);
 document.getElementById("decline-btn").addEventListener("click", declineCall);
 document.getElementById("hangup-btn").addEventListener("click", endCall);
+
+document.getElementById("vm-continue-btn").addEventListener("click", () => {
+  playSparkle();
+  startAfterParty();
+});
+
+document.querySelectorAll(".wish-star").forEach((star) => {
+  star.addEventListener("click", () => {
+    if (star.classList.contains("opened")) return;
+    star.classList.add("opened");
+    star.textContent = "★";
+    document.getElementById("star-reveal").textContent = star.dataset.wish;
+    playSparkle();
+    const r = star.getBoundingClientRect();
+    burstConfetti(r.left + r.width / 2, r.top, 28, 5);
+  });
+});
+
+document.getElementById("music-btn").addEventListener("click", playBirthdaySong);
+
 document.getElementById("replay-call-btn").addEventListener("click", () => {
+  stopBalloons();
+  clearInterval(fireworkTimer);
   particles = [];
   fillCallerUI();
   showScene("ring");

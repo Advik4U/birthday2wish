@@ -94,23 +94,63 @@
     </div>
   </section>
 
-  <!-- CALL ENDED -->
+  <!-- AFTER THE CALL: hangup → voicemail → celebration -->
   <section id="scene-ended" class="scene">
-    <div class="end-card">
+    <!-- Phase 1: hangup beat -->
+    <div id="phase-hangup" class="after-phase">
       <p class="call-eyebrow">call ended</p>
-      <h2 class="end-title">
-        Happy Birthday,
-        <span id="end-name" class="sender">Friend</span>
-      </h2>
-      <p id="end-message" class="end-message"></p>
-      <p class="end-from">Wish from <strong id="end-from">Someone</strong></p>
-      <button id="replay-call-btn" class="btn btn-ghost">↺ Call again</button>
+      <h2 class="hangup-title">Line quiet…</h2>
+      <p class="hangup-sub">but something was left behind for you</p>
     </div>
-    <button id="guide-light" class="guide-light" type="button" aria-label="Follow the light home">
-      <span class="guide-orb"></span>
-      <span class="guide-label">follow the light — make your own wish</span>
-    </button>
+
+    <!-- Phase 2: voicemail / forever message -->
+    <div id="phase-voicemail" class="after-phase hidden">
+      <div class="voicemail-card">
+        <p class="call-eyebrow">new voicemail</p>
+        <div class="waveform" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p class="vm-from">From <span id="vm-from" class="sender">Someone</span></p>
+        <p id="vm-transcript" class="vm-transcript"></p>
+        <button id="vm-continue-btn" class="btn btn-primary hidden-soft">Open your after-party ✨</button>
+      </div>
+    </div>
+
+    <!-- Phase 3: birthday after-party -->
+    <div id="phase-party" class="after-phase hidden">
+      <div class="party-wrap">
+        <p class="call-eyebrow">the after-party</p>
+        <h2 class="end-title">
+          Happy Birthday,
+          <span id="end-name" class="sender">Friend</span>
+        </h2>
+        <p class="party-lead">Tap each star — they hold a wish from the call</p>
+
+        <div class="wish-stars" id="wish-stars">
+          <button class="wish-star" type="button" data-wish="May your year sparkle louder than fireworks. ✨">✦</button>
+          <button class="wish-star" type="button" data-wish="Laughter on loop. Cake on demand. Love on repeat. 🎂">✦</button>
+          <button class="wish-star" type="button" data-wish="Every dream you whispered tonight — noted by the stars. 🌙">✦</button>
+          <button class="wish-star" type="button" data-wish="Stay wildly you. The world needs that energy. 💖">✦</button>
+        </div>
+        <p id="star-reveal" class="star-reveal"></p>
+
+        <div class="party-actions">
+          <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
+          <button id="replay-call-btn" class="btn btn-ghost">↺ Call again</button>
+        </div>
+        <p class="end-from">Saved forever · wish from <strong id="end-from">Someone</strong></p>
+      </div>
+
+      <button id="guide-light" class="guide-light" type="button" aria-label="Follow the light home">
+        <span class="guide-orb"></span>
+        <span class="guide-label">follow the light — make your own wish</span>
+      </button>
+    </div>
   </section>
+
+  <div id="balloons" class="balloons" aria-hidden="true"></div>
 
   <script src="script-call.js"></script>
 </body>
