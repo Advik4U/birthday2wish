@@ -1,4 +1,4 @@
-/* Incoming Birthday Call → Cake → Constellation finale */
+/* Incoming Birthday Call → Cake → Sky lantern finale */
 
 const params = new URLSearchParams(location.search);
 const NAME =
@@ -594,15 +594,50 @@ function stopMic() {
   }
 }
 
-/* ---------- Finale: constellation seal ---------- */
+/* ---------- Finale: sky lantern ---------- */
+const lanternSky = document.getElementById("lantern-sky");
+const lanternEl = document.getElementById("lantern");
+const lanternHint = document.getElementById("lantern-hint");
+const finaleMsgEl = document.getElementById("finale-msg");
+let lanternReleased = false;
+
+function resetLantern() {
+  lanternReleased = false;
+  lanternSky.classList.remove("rising", "released");
+  finaleMsgEl.classList.remove("visible");
+  lanternHint.textContent = "Tap the lantern — send your wish into the night";
+}
+
+function releaseLantern() {
+  if (lanternReleased) return;
+  lanternReleased = true;
+  lanternSky.classList.remove("rising");
+  lanternSky.classList.add("released");
+  lanternHint.textContent = "Your wish is lighting up the sky";
+  playSparkle();
+  confettiRain(140);
+  for (let i = 0; i < 6; i++) setTimeout(firework, i * 220);
+  clearInterval(fireworkTimer);
+  fireworkTimer = setInterval(firework, 1200);
+  setTimeout(() => clearInterval(fireworkTimer), 10000);
+}
+
 function startFinale() {
   document.body.classList.remove("lights-off");
+  resetLantern();
   showScene("finale");
-  confettiRain(180);
+  requestAnimationFrame(() => {
+    lanternSky.classList.add("rising");
+    setTimeout(() => {
+      lanternSky.classList.remove("rising");
+      finaleMsgEl.classList.add("visible");
+    }, 1800);
+  });
+  confettiRain(120);
   startBalloons();
   playBirthdaySong();
-  fireworkTimer = setInterval(firework, 1500);
-  setTimeout(() => clearInterval(fireworkTimer), 14000);
+  fireworkTimer = setInterval(firework, 2200);
+  setTimeout(() => clearInterval(fireworkTimer), 8000);
   playSparkle();
 }
 
@@ -616,15 +651,7 @@ knife.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") cutCake();
 });
 
-document.getElementById("constellation").addEventListener("click", () => {
-  const el = document.getElementById("constellation");
-  if (el.classList.contains("burst")) return;
-  el.classList.add("burst");
-  playSparkle();
-  confettiRain(120);
-  for (let i = 0; i < 4; i++) setTimeout(firework, i * 280);
-  setTimeout(() => el.classList.remove("burst"), 1200);
-});
+lanternEl.addEventListener("click", releaseLantern);
 
 document.getElementById("music-btn").addEventListener("click", playBirthdaySong);
 document.getElementById("replay-call-btn").addEventListener("click", () => {
@@ -633,6 +660,7 @@ document.getElementById("replay-call-btn").addEventListener("click", () => {
   clearInterval(fireworkTimer);
   document.body.classList.remove("lights-off");
   particles = [];
+  resetLantern();
   fillCallerUI();
   showScene("ring");
   startRinging();

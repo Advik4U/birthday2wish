@@ -137,31 +137,36 @@
     <p id="candles-left" class="candles-left"></p>
   </section>
 
-  <!-- FINALE: constellation seal -->
+  <!-- FINALE: sky lantern -->
   <section id="scene-finale" class="scene">
     <div class="finale-wrap">
-      <p class="call-eyebrow">wish sealed</p>
-      <div class="constellation" id="constellation" aria-hidden="true">
-        <span class="c-star" style="--i:0"></span>
-        <span class="c-star" style="--i:1"></span>
-        <span class="c-star" style="--i:2"></span>
-        <span class="c-star" style="--i:3"></span>
-        <span class="c-star" style="--i:4"></span>
-        <span class="c-star" style="--i:5"></span>
-        <span class="c-star" style="--i:6"></span>
-        <span class="c-star" style="--i:7"></span>
-        <span class="c-star" style="--i:8"></span>
-        <span class="c-star" style="--i:9"></span>
-        <span class="c-star" style="--i:10"></span>
-        <span class="c-star" style="--i:11"></span>
-        <div class="constellation-core">
-          <p class="core-label">forever in the stars</p>
-          <h2 id="finale-name" class="end-title sender">Friend</h2>
-          <p class="core-from">sealed by <strong id="finale-from">Someone</strong></p>
-        </div>
+      <p class="call-eyebrow">a wish takes flight</p>
+
+      <div class="lantern-sky" id="lantern-sky">
+        <span class="sky-ember" style="--e:0"></span>
+        <span class="sky-ember" style="--e:1"></span>
+        <span class="sky-ember" style="--e:2"></span>
+        <span class="sky-ember" style="--e:3"></span>
+        <span class="sky-ember" style="--e:4"></span>
+        <span class="sky-ember" style="--e:5"></span>
+
+        <button type="button" class="lantern" id="lantern" aria-label="Release the sky lantern">
+          <span class="lantern-halo" aria-hidden="true"></span>
+          <span class="lantern-cap" aria-hidden="true"></span>
+          <span class="lantern-body">
+            <span class="lantern-ribs" aria-hidden="true"></span>
+            <span class="lantern-for">for</span>
+            <span id="finale-name" class="lantern-name">Friend</span>
+            <span class="lantern-from">from <strong id="finale-from">Someone</strong></span>
+          </span>
+          <span class="lantern-flame" aria-hidden="true"></span>
+          <span class="lantern-base" aria-hidden="true"></span>
+          <span class="lantern-tassel" aria-hidden="true"></span>
+        </button>
       </div>
+
       <p id="finale-msg" class="finale-msg"></p>
-      <p class="party-lead">Tap the constellation to light the sky</p>
+      <p id="lantern-hint" class="party-lead">Tap the lantern — send your wish into the night</p>
       <div class="party-actions">
         <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
         <button id="replay-call-btn" class="btn btn-ghost">↺ Start over</button>
