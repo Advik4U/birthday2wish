@@ -1,4 +1,4 @@
-/* Incoming Birthday Call → Cake → Birthday portal finale */
+/* Incoming Birthday Call → Cake → After-party table finale */
 
 const params = new URLSearchParams(location.search);
 const NAME =
@@ -387,6 +387,8 @@ function fillCallerUI() {
   document.getElementById("caller-avatar").textContent = CALLER.charAt(0).toUpperCase();
   document.getElementById("finale-name").textContent = NAME;
   document.getElementById("finale-from").textContent = CALLER;
+  document.getElementById("finale-avatar").textContent = CALLER.charAt(0).toUpperCase();
+  document.getElementById("finale-msg").textContent = MSG || DEFAULT_MSG;
   document.title = `${CALLER} is calling…`;
 }
 
@@ -593,103 +595,128 @@ function stopMic() {
   }
 }
 
-/* ---------- Finale: birthday portal / toast ---------- */
-const portalStage = document.getElementById("portal-stage");
-const portalEl = document.getElementById("portal");
-const portalHint = document.getElementById("portal-hint");
+/* ---------- Finale: after-party table ---------- */
+const afterpartyTable = document.getElementById("afterparty-table");
+const savedWishPhone = document.getElementById("saved-wish-phone");
+const toastBtn = document.getElementById("toast-btn");
 const finaleMsgEl = document.getElementById("finale-msg");
-let portalToasted = false;
-let typewriterTimer = null;
+const finaleHint = document.getElementById("finale-hint");
+const tableSmoke = document.getElementById("table-smoke");
+let wishPlayed = false;
+let toastRaised = false;
+let smokeTimer = null;
 
-function playGlassClink() {
+function playClink() {
   const ctx = getAudio();
-  const now = ctx.currentTime;
-  [[2100, 0, 0.14], [3180, 0.018, 0.1], [4200, 0.04, 0.06]].forEach(([freq, delay, vol]) => {
+  [880, 1174.7].forEach((f, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, now + delay);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.92, now + delay + 0.35);
-    filter.type = "bandpass";
-    filter.frequency.value = freq;
-    filter.Q.value = 14;
-    gain.gain.setValueAtTime(0.0001, now + delay);
-    gain.gain.linearRampToValueAtTime(vol, now + delay + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.55);
-    osc.connect(filter).connect(gain).connect(ctx.destination);
-    osc.start(now + delay);
-    osc.stop(now + delay + 0.6);
+    osc.frequency.value = f;
+    const t = ctx.currentTime + i * 0.04;
+    gain.gain.setValueAtTime(0.12, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.4);
   });
-  const noiseDur = 0.08;
-  const buffer = ctx.createBuffer(1, ctx.sampleRate * noiseDur, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-  const src = ctx.createBufferSource();
-  src.buffer = buffer;
-  const hp = ctx.createBiquadFilter();
-  hp.type = "highpass";
-  hp.frequency.value = 2500;
-  const nGain = ctx.createGain();
-  nGain.gain.setValueAtTime(0.08, now + 0.02);
-  nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02 + noiseDur);
-  src.connect(hp).connect(nGain).connect(ctx.destination);
-  src.start(now + 0.02);
 }
 
-function typeWish(text) {
-  clearTimeout(typewriterTimer);
+function spawnTableSmoke() {
+  const wisp = document.createElement("span");
+  wisp.className = "smoke-wisp";
+  wisp.style.left = 38 + Math.random() * 24 + "%";
+  wisp.style.animationDuration = 3.2 + Math.random() * 2 + "s";
+  wisp.style.animationDelay = Math.random() * 0.8 + "s";
+  tableSmoke.appendChild(wisp);
+  setTimeout(() => wisp.remove(), 5200);
+}
+
+function startTableSmoke() {
+  clearInterval(smokeTimer);
+  spawnTableSmoke();
+  smokeTimer = setInterval(spawnTableSmoke, 1400);
+}
+
+function stopTableSmoke() {
+  clearInterval(smokeTimer);
+  smokeTimer = null;
+  tableSmoke.innerHTML = "";
+}
+
+function resetFinale() {
+  wishPlayed = false;
+  toastRaised = false;
+  afterpartyTable.classList.remove("entered", "wish-playing", "wish-played", "toasting");
+  savedWishPhone.classList.remove("playing");
+  toastBtn.disabled = true;
+  finaleMsgEl.classList.remove("visible", "typing", "done");
+  finaleMsgEl.textContent = MSG || DEFAULT_MSG;
+  finaleHint.textContent = "The call ended — tap the phone to hear their wish";
+  stopTableSmoke();
+}
+
+function playSavedWish() {
+  if (wishPlayed) return;
+  wishPlayed = true;
+  savedWishPhone.classList.add("playing");
+  afterpartyTable.classList.add("wish-playing");
+  finaleHint.textContent = "Listening…";
+  playSparkle();
+  const fullMsg = MSG || DEFAULT_MSG;
   finaleMsgEl.textContent = "";
-  finaleMsgEl.classList.add("visible", "typing");
-  let i = 0;
-  (function tick() {
-    if (i >= text.length) {
-      finaleMsgEl.classList.remove("typing");
-      return;
-    }
-    finaleMsgEl.textContent = text.slice(0, ++i);
-    typewriterTimer = setTimeout(tick, 28 + (text[i - 1] === " " ? 40 : 0));
-  })();
+  setTimeout(() => {
+    afterpartyTable.classList.remove("wish-playing");
+    afterpartyTable.classList.add("wish-played");
+    savedWishPhone.classList.remove("playing");
+    finaleMsgEl.classList.add("visible", "typing");
+    finaleHint.textContent = "Their words, saved just for you";
+    toastBtn.disabled = false;
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      finaleMsgEl.textContent = fullMsg.slice(0, ++i);
+      if (i >= fullMsg.length) {
+        clearInterval(typeInterval);
+        finaleMsgEl.classList.remove("typing");
+        finaleMsgEl.classList.add("done");
+        finaleHint.textContent = "Tap the glasses — raise a birthday toast 🥂";
+        burstConfetti(innerWidth * 0.5, innerHeight * 0.45, 35, 4);
+      }
+    }, 28);
+  }, 1600);
 }
 
-function resetPortal() {
-  portalToasted = false;
-  clearTimeout(typewriterTimer);
-  portalStage.classList.remove("entering", "awakening", "toasted");
-  finaleMsgEl.classList.remove("visible", "typing");
-  finaleMsgEl.textContent = "";
-  portalHint.textContent = "Tap the mirror — toast to another year";
-}
-
-function toastPortal() {
-  if (portalToasted) return;
-  portalToasted = true;
-  portalStage.classList.remove("entering");
-  portalStage.classList.add("awakening", "toasted");
-  portalHint.textContent = "Cheers — another year begins";
-  setTimeout(playGlassClink, 950);
-  setTimeout(() => typeWish(MSG || DEFAULT_MSG), 1100);
+function raiseToast() {
+  if (!wishPlayed || toastRaised) return;
+  toastRaised = true;
+  afterpartyTable.classList.add("toasting");
+  toastBtn.disabled = true;
+  finaleHint.textContent = "Cheers to you — happy birthday!";
+  playClink();
   playSparkle();
   confettiRain(140);
   for (let i = 0; i < 6; i++) setTimeout(firework, i * 220);
   clearInterval(fireworkTimer);
   fireworkTimer = setInterval(firework, 1200);
   setTimeout(() => clearInterval(fireworkTimer), 10000);
+  const rect = toastBtn.getBoundingClientRect();
+  burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 50, 6);
 }
 
 function startFinale() {
   document.body.classList.remove("lights-off");
-  resetPortal();
+  resetFinale();
+  const timeEl = document.getElementById("finale-call-time");
+  timeEl.textContent =
+    `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   showScene("finale");
-  requestAnimationFrame(() => {
-    portalStage.classList.add("entering");
-    setTimeout(() => portalStage.classList.remove("entering"), 1700);
-  });
-  confettiRain(100);
+  requestAnimationFrame(() => afterpartyTable.classList.add("entered"));
+  startTableSmoke();
+  confettiRain(80);
   startBalloons();
   playBirthdaySong();
-  fireworkTimer = setInterval(firework, 2200);
-  setTimeout(() => clearInterval(fireworkTimer), 8000);
+  fireworkTimer = setInterval(firework, 2800);
+  setTimeout(() => clearInterval(fireworkTimer), 6000);
   playSparkle();
 }
 
@@ -703,16 +730,18 @@ knife.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") cutCake();
 });
 
-portalEl.addEventListener("click", toastPortal);
+savedWishPhone.addEventListener("click", playSavedWish);
+toastBtn.addEventListener("click", raiseToast);
 
 document.getElementById("music-btn").addEventListener("click", playBirthdaySong);
 document.getElementById("replay-call-btn").addEventListener("click", () => {
   stopBalloons();
   stopMic();
+  stopTableSmoke();
   clearInterval(fireworkTimer);
   document.body.classList.remove("lights-off");
   particles = [];
-  resetPortal();
+  resetFinale();
   fillCallerUI();
   showScene("ring");
   startRinging();

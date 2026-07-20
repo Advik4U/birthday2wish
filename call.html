@@ -137,48 +137,62 @@
     <p id="candles-left" class="candles-left"></p>
   </section>
 
-  <!-- FINALE: birthday portal / toast -->
+  <!-- FINALE: after-party table -->
   <section id="scene-finale" class="scene">
     <div class="finale-wrap">
-      <p class="call-eyebrow">raise a glass</p>
+      <p class="call-eyebrow">after the celebration</p>
+      <h2 class="finale-title">
+        For <span id="finale-name" class="sender">Friend</span>
+      </h2>
 
-      <div class="portal-stage" id="portal-stage">
-        <button type="button" class="portal" id="portal" aria-label="Tap the birthday mirror to toast">
-          <span class="portal-aura" aria-hidden="true"></span>
-          <span class="portal-frame">
-            <span class="portal-bezel" aria-hidden="true"></span>
-            <span class="portal-etch portal-etch-top">
-              for <strong id="finale-name">Friend</strong>
-            </span>
-            <span class="portal-glass">
-              <span class="portal-liquid" aria-hidden="true"></span>
-              <span class="portal-shimmer" aria-hidden="true"></span>
-              <span class="portal-ripple r1" aria-hidden="true"></span>
-              <span class="portal-ripple r2" aria-hidden="true"></span>
-              <span class="portal-ripple r3" aria-hidden="true"></span>
-              <span class="toast-pair" id="toast-pair" aria-hidden="true">
-                <span class="flute flute-left">
-                  <span class="flute-bowl"><span class="flute-bubbly"></span></span>
-                  <span class="flute-stem"></span>
-                  <span class="flute-base"></span>
-                </span>
-                <span class="flute flute-right">
-                  <span class="flute-bowl"><span class="flute-bubbly"></span></span>
-                  <span class="flute-stem"></span>
-                  <span class="flute-base"></span>
-                </span>
-                <span class="clink-burst" aria-hidden="true"></span>
-              </span>
-            </span>
-            <span class="portal-etch portal-etch-bottom">
-              from <strong id="finale-from">Someone</strong>
-            </span>
-          </span>
-        </button>
+      <div class="afterparty-table" id="afterparty-table">
+        <div class="table-surface">
+          <div class="table-glow" aria-hidden="true"></div>
+          <div class="table-smoke" id="table-smoke" aria-hidden="true"></div>
+
+          <button type="button" class="phone-laid" id="saved-wish-phone" aria-label="Replay saved wish">
+            <div class="phone-laid-body">
+              <div class="phone-laid-notch" aria-hidden="true"></div>
+              <div class="phone-laid-screen">
+                <div class="call-ended-bar">
+                  <span class="ended-dot" aria-hidden="true"></span>
+                  <span>Call ended</span>
+                  <span class="ended-time" id="finale-call-time">00:00</span>
+                </div>
+                <div class="saved-wish-card">
+                  <div class="saved-avatar" id="finale-avatar">A</div>
+                  <p class="saved-label">Saved wish</p>
+                  <p class="saved-from">from <span id="finale-from" class="sender">Someone</span></p>
+                  <div class="saved-waveform" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </button>
+
+          <div class="table-slice" aria-hidden="true">
+            <div class="table-slice-wedge">
+              <div class="table-slice-stripe s1"></div>
+              <div class="table-slice-stripe s2"></div>
+              <div class="table-slice-stripe s3"></div>
+              <div class="table-slice-frosting"></div>
+            </div>
+            <div class="table-slice-plate"></div>
+            <div class="table-slice-fork" aria-hidden="true"></div>
+          </div>
+
+          <button type="button" class="toast-clink" id="toast-btn" aria-label="Raise a toast" disabled>
+            <span class="toast-glass left" aria-hidden="true"></span>
+            <span class="toast-spark" aria-hidden="true">✦</span>
+            <span class="toast-glass right" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
 
-      <p id="finale-msg" class="finale-msg" aria-live="polite"></p>
-      <p id="portal-hint" class="party-lead">Tap the mirror — toast to another year</p>
+      <p id="finale-msg" class="finale-msg"></p>
+      <p id="finale-hint" class="party-lead">The call ended — tap the phone to hear their wish</p>
       <div class="party-actions">
         <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
         <button id="replay-call-btn" class="btn btn-ghost">↺ Start over</button>
