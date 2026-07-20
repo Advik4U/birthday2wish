@@ -1,4 +1,4 @@
-/* Incoming Birthday Call → Cake → Sky lantern finale */
+/* Incoming Birthday Call → Cake → Celebration climax */
 
 const params = new URLSearchParams(location.search);
 const NAME =
@@ -276,10 +276,47 @@ function playBirthdaySong() {
   setTimeout(() => { songPlaying = false; }, (t - ctx.currentTime) * 1000);
 }
 
+function playClink() {
+  const ctx = getAudio();
+  const now = ctx.currentTime;
+  [[1568, 0, 0.12], [2093, 0.04, 0.08], [2637, 0.08, 0.05]].forEach(([freq, delay, vol]) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    const t = now + delay;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  });
+}
+
 /* ---------- Balloons ---------- */
 const balloonLayer = document.getElementById("balloons");
 let balloonTimer = null;
 let fireworkTimer = null;
+const BALLOON_WISHES = [
+  "more laughter",
+  "sweet surprises",
+  "dreams on fire",
+  "soft mornings",
+  "golden hours",
+  "brave new yeses",
+];
+
+function showBalloonNote(x, y) {
+  const note = document.createElement("div");
+  note.className = "balloon-note";
+  note.textContent = BALLOON_WISHES[(Math.random() * BALLOON_WISHES.length) | 0];
+  note.style.left = `${x}px`;
+  note.style.top = `${y}px`;
+  document.body.appendChild(note);
+  setTimeout(() => note.remove(), 1700);
+}
+
 function spawnBalloon() {
   const b = document.createElement("div");
   b.className = "balloon";
@@ -291,7 +328,10 @@ function spawnBalloon() {
     b.classList.add("pop");
     playPop();
     const rect = b.getBoundingClientRect();
-    burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, 5);
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    burstConfetti(cx, cy, 20, 5);
+    if (scenes.finale.classList.contains("active")) showBalloonNote(cx, cy);
     setTimeout(() => b.remove(), 200);
   });
   b.addEventListener("animationend", (e) => {
@@ -387,8 +427,10 @@ function fillCallerUI() {
   document.getElementById("caller-avatar").textContent = CALLER.charAt(0).toUpperCase();
   document.getElementById("finale-name").textContent = NAME;
   document.getElementById("finale-from").textContent = CALLER;
+  document.getElementById("finale-card-from").textContent = CALLER;
   document.getElementById("finale-msg").textContent = MSG || DEFAULT_MSG;
   document.title = `${CALLER} is calling…`;
+  fillWishTags();
 }
 
 function answerCall() {
@@ -594,18 +636,63 @@ function stopMic() {
   }
 }
 
-/* ---------- Finale: sky lantern ---------- */
+/* ---------- Finale: celebration climax ---------- */
 const lanternSky = document.getElementById("lantern-sky");
 const lanternEl = document.getElementById("lantern");
 const lanternHint = document.getElementById("lantern-hint");
-const finaleMsgEl = document.getElementById("finale-msg");
+const sparkleLine = document.getElementById("sparkle-line");
+const memoryCard = document.getElementById("memory-card");
+const wishTagsEl = document.getElementById("wish-tags");
+const finaleRituals = document.getElementById("finale-rituals");
+const silentWishBtn = document.getElementById("silent-wish");
+const silentLabel = document.getElementById("silent-label");
+const toastBtn = document.getElementById("toast-btn");
+const toastLine = document.getElementById("toast-line");
 let lanternReleased = false;
+let silentGranted = false;
+let toastDone = false;
+let silentHoldTimer = null;
+
+function wishTagTexts() {
+  return [
+    `Joy finds ${NAME}`,
+    `From ${CALLER}, with love`,
+    "Another beautiful year",
+  ];
+}
+
+function fillWishTags() {
+  const texts = wishTagTexts();
+  wishTagsEl.querySelectorAll(".wish-tag").forEach((tag, i) => {
+    tag.classList.remove("opened");
+    tag.querySelector(".wish-tag-reveal").textContent = texts[i] || texts[0];
+  });
+}
 
 function resetLantern() {
   lanternReleased = false;
+  silentGranted = false;
+  toastDone = false;
+  clearTimeout(silentHoldTimer);
+  silentHoldTimer = null;
   lanternSky.classList.remove("rising", "released");
-  finaleMsgEl.classList.remove("visible");
+  sparkleLine.classList.remove("visible");
+  sparkleLine.textContent = "";
   lanternHint.textContent = "Tap the lantern — send your wish into the night";
+  memoryCard.classList.remove("flipped");
+  wishTagsEl.classList.remove("ready");
+  fillWishTags();
+  finaleRituals.hidden = true;
+  silentWishBtn.classList.remove("holding", "granted");
+  silentLabel.textContent = "hold for a silent wish";
+  toastBtn.classList.remove("clinked");
+  toastLine.classList.remove("visible");
+  toastLine.textContent = "";
+}
+
+function unlockRituals() {
+  finaleRituals.hidden = false;
+  lanternHint.textContent = "Make a silent wish — or raise a toast";
 }
 
 function releaseLantern() {
@@ -613,6 +700,8 @@ function releaseLantern() {
   lanternReleased = true;
   lanternSky.classList.remove("rising");
   lanternSky.classList.add("released");
+  sparkleLine.textContent = `Happy Birthday, ${NAME}`;
+  setTimeout(() => sparkleLine.classList.add("visible"), 900);
   lanternHint.textContent = "Your wish is lighting up the sky";
   playSparkle();
   confettiRain(140);
@@ -620,6 +709,7 @@ function releaseLantern() {
   clearInterval(fireworkTimer);
   fireworkTimer = setInterval(firework, 1200);
   setTimeout(() => clearInterval(fireworkTimer), 10000);
+  setTimeout(unlockRituals, 1600);
 }
 
 function startFinale() {
@@ -630,7 +720,7 @@ function startFinale() {
     lanternSky.classList.add("rising");
     setTimeout(() => {
       lanternSky.classList.remove("rising");
-      finaleMsgEl.classList.add("visible");
+      wishTagsEl.classList.add("ready");
     }, 1800);
   });
   confettiRain(120);
@@ -639,6 +729,45 @@ function startFinale() {
   fireworkTimer = setInterval(firework, 2200);
   setTimeout(() => clearInterval(fireworkTimer), 8000);
   playSparkle();
+}
+
+function grantSilentWish() {
+  if (silentGranted) return;
+  silentGranted = true;
+  silentWishBtn.classList.remove("holding");
+  silentWishBtn.classList.add("granted");
+  silentLabel.textContent = "wish kept — forever yours";
+  playSparkle();
+  burstConfetti(innerWidth / 2, innerHeight * 0.55, 50, 6);
+  for (let i = 0; i < 3; i++) setTimeout(firework, i * 300);
+}
+
+function beginSilentHold(e) {
+  if (!lanternReleased || silentGranted) return;
+  e.preventDefault();
+  silentWishBtn.classList.add("holding");
+  clearTimeout(silentHoldTimer);
+  silentHoldTimer = setTimeout(grantSilentWish, 1100);
+}
+
+function endSilentHold() {
+  clearTimeout(silentHoldTimer);
+  silentHoldTimer = null;
+  if (!silentGranted) silentWishBtn.classList.remove("holding");
+}
+
+function raiseToast() {
+  if (!lanternReleased) return;
+  toastBtn.classList.remove("clinked");
+  void toastBtn.offsetWidth;
+  toastBtn.classList.add("clinked");
+  playClink();
+  toastLine.textContent = toastDone
+    ? `To ${NAME} — may the night keep glowing`
+    : `To ${NAME}, from ${CALLER} — cheers to you`;
+  toastLine.classList.add("visible");
+  toastDone = true;
+  burstConfetti(innerWidth * 0.5, innerHeight * 0.42, 36, 5);
 }
 
 /* ---------- Events ---------- */
@@ -652,6 +781,26 @@ knife.addEventListener("keydown", (e) => {
 });
 
 lanternEl.addEventListener("click", releaseLantern);
+
+memoryCard.addEventListener("click", () => {
+  memoryCard.classList.toggle("flipped");
+  playSparkle();
+});
+
+wishTagsEl.addEventListener("click", (e) => {
+  const tag = e.target.closest(".wish-tag");
+  if (!tag || tag.classList.contains("opened")) return;
+  tag.classList.add("opened");
+  playSparkle();
+  const rect = tag.getBoundingClientRect();
+  burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2, 16, 4);
+});
+
+silentWishBtn.addEventListener("pointerdown", beginSilentHold);
+silentWishBtn.addEventListener("pointerup", endSilentHold);
+silentWishBtn.addEventListener("pointerleave", endSilentHold);
+silentWishBtn.addEventListener("pointercancel", endSilentHold);
+toastBtn.addEventListener("click", raiseToast);
 
 document.getElementById("music-btn").addEventListener("click", playBirthdaySong);
 document.getElementById("replay-call-btn").addEventListener("click", () => {
