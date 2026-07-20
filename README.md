@@ -16,7 +16,7 @@ Zero-dependency birthday surprises built with vanilla HTML, CSS and JavaScript. 
 1. Incoming call UI — “[Sender] is calling…” with ringtone  
 2. Answer → their pasted video plays inside the phone call  
 3. **Let’s move to the cake** → candle blowout (mic or tap) → cake cutting  
-4. **Celebration climax** — sky lantern, flip postcard, wish tags, silent wish, toast, balloon notes  
+4. **Birthday portal finale** — gold mirror ripples; tap to toast (glasses clink) and the wish writes itself  
 5. Guiding light home  
 
 Decline still delivers the typed birthday note + Answer anyway.

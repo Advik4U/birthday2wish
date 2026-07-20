@@ -137,83 +137,48 @@
     <p id="candles-left" class="candles-left"></p>
   </section>
 
-  <!-- FINALE: celebration climax -->
+  <!-- FINALE: birthday portal / toast -->
   <section id="scene-finale" class="scene">
     <div class="finale-wrap">
-      <p class="call-eyebrow">tonight we celebrate</p>
+      <p class="call-eyebrow">raise a glass</p>
 
-      <div class="wish-tags" id="wish-tags" aria-label="Birthday wish notes">
-        <button type="button" class="wish-tag" data-wish="0" style="--t:0">
-          <span class="wish-tag-face">✦ open</span>
-          <span class="wish-tag-reveal"></span>
-        </button>
-        <button type="button" class="wish-tag" data-wish="1" style="--t:1">
-          <span class="wish-tag-face">✦ open</span>
-          <span class="wish-tag-reveal"></span>
-        </button>
-        <button type="button" class="wish-tag" data-wish="2" style="--t:2">
-          <span class="wish-tag-face">✦ open</span>
-          <span class="wish-tag-reveal"></span>
+      <div class="portal-stage" id="portal-stage">
+        <button type="button" class="portal" id="portal" aria-label="Tap the birthday mirror to toast">
+          <span class="portal-aura" aria-hidden="true"></span>
+          <span class="portal-frame">
+            <span class="portal-bezel" aria-hidden="true"></span>
+            <span class="portal-etch portal-etch-top">
+              for <strong id="finale-name">Friend</strong>
+            </span>
+            <span class="portal-glass">
+              <span class="portal-liquid" aria-hidden="true"></span>
+              <span class="portal-shimmer" aria-hidden="true"></span>
+              <span class="portal-ripple r1" aria-hidden="true"></span>
+              <span class="portal-ripple r2" aria-hidden="true"></span>
+              <span class="portal-ripple r3" aria-hidden="true"></span>
+              <span class="toast-pair" id="toast-pair" aria-hidden="true">
+                <span class="flute flute-left">
+                  <span class="flute-bowl"><span class="flute-bubbly"></span></span>
+                  <span class="flute-stem"></span>
+                  <span class="flute-base"></span>
+                </span>
+                <span class="flute flute-right">
+                  <span class="flute-bowl"><span class="flute-bubbly"></span></span>
+                  <span class="flute-stem"></span>
+                  <span class="flute-base"></span>
+                </span>
+                <span class="clink-burst" aria-hidden="true"></span>
+              </span>
+            </span>
+            <span class="portal-etch portal-etch-bottom">
+              from <strong id="finale-from">Someone</strong>
+            </span>
+          </span>
         </button>
       </div>
 
-      <div class="lantern-sky" id="lantern-sky">
-        <span class="sky-ember" style="--e:0"></span>
-        <span class="sky-ember" style="--e:1"></span>
-        <span class="sky-ember" style="--e:2"></span>
-        <span class="sky-ember" style="--e:3"></span>
-        <span class="sky-ember" style="--e:4"></span>
-        <span class="sky-ember" style="--e:5"></span>
-        <svg class="sparkle-trail" id="sparkle-trail" viewBox="0 0 280 120" aria-hidden="true">
-          <path id="trail-path" d="M40 95 C 80 40, 140 30, 200 55 S 260 20, 270 35" fill="none" />
-        </svg>
-
-        <button type="button" class="lantern" id="lantern" aria-label="Release the sky lantern">
-          <span class="lantern-halo" aria-hidden="true"></span>
-          <span class="lantern-cap" aria-hidden="true"></span>
-          <span class="lantern-body">
-            <span class="lantern-ribs" aria-hidden="true"></span>
-            <span class="lantern-for">for</span>
-            <span id="finale-name" class="lantern-name">Friend</span>
-            <span class="lantern-from">from <strong id="finale-from">Someone</strong></span>
-          </span>
-          <span class="lantern-flame" aria-hidden="true"></span>
-          <span class="lantern-base" aria-hidden="true"></span>
-          <span class="lantern-tassel" aria-hidden="true"></span>
-        </button>
-      </div>
-
-      <p id="sparkle-line" class="sparkle-line" aria-live="polite"></p>
-
-      <button type="button" class="memory-card" id="memory-card" aria-label="Open the memory postcard">
-        <span class="memory-inner" id="memory-inner">
-          <span class="memory-face memory-front">
-            <span class="memory-stamp" aria-hidden="true"></span>
-            <span class="memory-seal">sealed memory</span>
-            <span class="memory-prompt">tap to flip</span>
-          </span>
-          <span class="memory-face memory-back">
-            <span class="memory-label">a note for you</span>
-            <span id="finale-msg" class="finale-msg"></span>
-            <span class="memory-sign">— <strong id="finale-card-from">Someone</strong></span>
-          </span>
-        </span>
-      </button>
-
-      <div class="finale-rituals" id="finale-rituals" hidden>
-        <button type="button" class="silent-wish" id="silent-wish" aria-label="Hold to make a silent wish">
-          <span class="silent-orb" aria-hidden="true"></span>
-          <span class="silent-label" id="silent-label">hold for a silent wish</span>
-        </button>
-        <button type="button" class="toast-btn" id="toast-btn" aria-label="Raise a birthday toast">
-          <span class="toast-glasses" aria-hidden="true">🥂</span>
-          <span>raise a toast</span>
-        </button>
-      </div>
-      <p id="toast-line" class="toast-line" aria-live="polite"></p>
-
-      <p id="lantern-hint" class="party-lead">Tap the lantern — send your wish into the night</p>
-      <p class="balloon-nudge">Pop the floating balloons for surprise wishes</p>
+      <p id="finale-msg" class="finale-msg" aria-live="polite"></p>
+      <p id="portal-hint" class="party-lead">Tap the mirror — toast to another year</p>
       <div class="party-actions">
         <button id="music-btn" class="btn btn-ghost">🎵 Play the birthday song</button>
         <button id="replay-call-btn" class="btn btn-ghost">↺ Start over</button>
