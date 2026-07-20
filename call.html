@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Incoming Birthday Call</title>
+  <meta name="description" content="Someone is calling you with a birthday video wish. Answer to watch." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>" />
+  <meta property="og:title" content="Incoming Birthday Call 📞" />
+  <meta property="og:description" content="Someone is calling you with a birthday video wish. Answer to watch." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style-call.css" />
+</head>
+<body>
+  <canvas id="stars-canvas" aria-hidden="true"></canvas>
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- RINGING -->
+  <section id="scene-ring" class="scene active">
+    <p class="call-eyebrow">incoming birthday call</p>
+    <div class="phone">
+      <div class="phone-notch" aria-hidden="true"></div>
+      <div class="ring-content">
+        <div class="avatar-wrap">
+          <div class="avatar-pulse" aria-hidden="true"></div>
+          <div class="avatar" id="caller-avatar">A</div>
+        </div>
+        <p class="caller-label">Birthday Wish</p>
+        <h1 class="caller-name">
+          <span id="caller-name" class="sender">Someone</span>
+          <span class="calling-text"> is calling…</span>
+        </h1>
+        <p id="ring-hint" class="ring-hint">Answer to hear their wish</p>
+        <div class="call-actions">
+          <button id="decline-btn" class="call-btn decline" type="button" aria-label="Decline">
+            <span class="call-btn-icon">✕</span>
+            <span class="call-btn-label">Decline</span>
+          </button>
+          <button id="answer-btn" class="call-btn answer" type="button" aria-label="Answer">
+            <span class="call-btn-icon">📞</span>
+            <span class="call-btn-label">Answer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DECLINED: still deliver the typed message -->
+  <section id="scene-declined" class="scene">
+    <div class="end-card">
+      <p class="call-eyebrow">missed call</p>
+      <h2 class="end-title">They left you a note</h2>
+      <p id="declined-msg" class="end-message"></p>
+      <p class="end-from" id="declined-from"></p>
+      <button id="answer-anyway-btn" class="btn btn-primary">Answer anyway 📞</button>
+      <button id="declined-home-btn" class="btn btn-ghost">Back home</button>
+    </div>
+  </section>
+
+  <!-- IN CALL: video as the call -->
+  <section id="scene-active" class="scene">
+    <div class="phone phone-connected">
+      <div class="phone-notch" aria-hidden="true"></div>
+      <div class="call-status-bar">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="call-status">Connected · Birthday wish</span>
+        <span id="call-timer">00:00</span>
+      </div>
+      <div class="video-stage">
+        <iframe
+          id="wish-video"
+          title="Birthday wish video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+        <div id="video-fallback" class="video-fallback hidden">
+          <p>This link can’t play inside the call.</p>
+          <a id="open-video-btn" class="btn btn-primary" target="_blank" rel="noopener">Open video ↗</a>
+        </div>
+      </div>
+      <p id="call-caption" class="call-caption"></p>
+      <div class="in-call-actions">
+        <button id="hangup-btn" class="call-btn decline hangup" type="button" aria-label="Hang up">
+          <span class="call-btn-icon">📞</span>
+          <span class="call-btn-label">End</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALL ENDED -->
+  <section id="scene-ended" class="scene">
+    <div class="end-card">
+      <p class="call-eyebrow">call ended</p>
+      <h2 class="end-title">
+        Happy Birthday,
+        <span id="end-name" class="sender">Friend</span>
+      </h2>
+      <p id="end-message" class="end-message"></p>
+      <p class="end-from">Wish from <strong id="end-from">Someone</strong></p>
+      <button id="replay-call-btn" class="btn btn-ghost">↺ Call again</button>
+    </div>
+    <button id="guide-light" class="guide-light" type="button" aria-label="Follow the light home">
+      <span class="guide-orb"></span>
+      <span class="guide-label">follow the light — make your own wish</span>
+    </button>
+  </section>
+
+  <script src="script-call.js"></script>
+</body>
+</html>

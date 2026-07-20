@@ -690,14 +690,33 @@ document.querySelectorAll(".wish-card").forEach((c) => {
 });
 
 /* ============================================================
-   Home page: build the personalized link
+   Home page: template picker + personalized links
    ============================================================ */
 const homeName = document.getElementById("home-name");
 const homeFrom = document.getElementById("home-from");
 const homeMsg = document.getElementById("home-msg");
 const homeCopyStatus = document.getElementById("home-copy-status");
+const callName = document.getElementById("call-name");
+const callFrom = document.getElementById("call-from");
+const callMsg = document.getElementById("call-msg");
+const callVideo = document.getElementById("call-video");
+const callCopyStatus = document.getElementById("call-copy-status");
+let activeTemplate = "gift";
 
-function buildLink() {
+document.querySelectorAll(".template-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    activeTemplate = card.dataset.template;
+    document.querySelectorAll(".template-card").forEach((c) => {
+      const on = c === card;
+      c.classList.toggle("active", on);
+      c.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    document.getElementById("form-gift").classList.toggle("hidden", activeTemplate !== "gift");
+    document.getElementById("form-call").classList.toggle("hidden", activeTemplate !== "call");
+  });
+});
+
+function buildGiftLink() {
   const url = new URL(location.origin + location.pathname);
   url.searchParams.set("HappyBirthdaySurprise", homeName.value.trim() || "Friend");
   if (homeFrom.value.trim()) url.searchParams.set("from", homeFrom.value.trim());
@@ -705,33 +724,67 @@ function buildLink() {
   return url.toString();
 }
 
+function buildCallLink() {
+  const video = callVideo.value.trim();
+  if (!video) {
+    callCopyStatus.textContent = "Add a video link first 🎬";
+    callVideo.focus();
+    return null;
+  }
+  const url = new URL("call.html", location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("HappyBirthdaySurprise", callName.value.trim() || "Friend");
+  if (callFrom.value.trim()) url.searchParams.set("from", callFrom.value.trim());
+  if (callMsg.value.trim()) url.searchParams.set("msg", callMsg.value.trim());
+  url.searchParams.set("v", video);
+  return url.toString();
+}
+
 document.getElementById("home-create").addEventListener("click", () => {
-  location.href = buildLink();
+  location.href = buildGiftLink();
 });
 
 document.getElementById("home-copy").addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(buildLink());
+    await navigator.clipboard.writeText(buildGiftLink());
     homeCopyStatus.textContent = "Copied! Send it to someone special 💌";
   } catch {
-    homeCopyStatus.textContent = buildLink();
+    homeCopyStatus.textContent = buildGiftLink();
+  }
+});
+
+document.getElementById("call-create").addEventListener("click", () => {
+  const link = buildCallLink();
+  if (link) location.href = link;
+});
+
+document.getElementById("call-copy").addEventListener("click", async () => {
+  const link = buildCallLink();
+  if (!link) return;
+  try {
+    await navigator.clipboard.writeText(link);
+    callCopyStatus.textContent = "Copied! Send them the birthday call 💌";
+  } catch {
+    callCopyStatus.textContent = link;
   }
 });
 
 // Discord has no public profile URLs — copy the username instead
 document.getElementById("discord-link").addEventListener("click", async (e) => {
   e.preventDefault();
+  const status = activeTemplate === "call" ? callCopyStatus : homeCopyStatus;
   try {
     await navigator.clipboard.writeText("advik4u");
-    homeCopyStatus.textContent = "Discord username copied: advik4u 📋";
+    status.textContent = "Discord username copied: advik4u 📋";
   } catch {
-    homeCopyStatus.textContent = "Discord: advik4u";
+    status.textContent = "Discord: advik4u";
   }
 });
 
 // the guiding light on the celebration scene leads back home
 document.getElementById("guide-light").addEventListener("click", () => {
-  location.href = location.pathname;
+  location.href = location.origin + location.pathname.replace(/index\.html$/, "");
 });
 
 /* ============================================================

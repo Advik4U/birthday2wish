@@ -32,7 +32,21 @@
     <h1 class="home-title">A Birthday Wish</h1>
     <div class="gold-divider" aria-hidden="true"><span>✦</span></div>
 
-    <div class="home-form">
+    <div class="template-picker" role="tablist" aria-label="Choose a template">
+      <button type="button" class="template-card active" data-template="gift" role="tab" aria-selected="true">
+        <span class="template-icon" aria-hidden="true">🎁</span>
+        <span class="template-name">Gift &amp; Cake</span>
+        <span class="template-desc">Blow candles, cut the cake</span>
+      </button>
+      <button type="button" class="template-card" data-template="call" role="tab" aria-selected="false">
+        <span class="template-icon" aria-hidden="true">📞</span>
+        <span class="template-name">Birthday Call</span>
+        <span class="template-desc">Answer a video birthday call</span>
+      </button>
+    </div>
+
+    <!-- Gift & Cake form -->
+    <div class="home-form" id="form-gift" data-form="gift">
       <label for="home-from">Your name</label>
       <input id="home-from" type="text" maxlength="30" placeholder="e.g. Advik" />
       <label for="home-name">Their name</label>
@@ -45,6 +59,24 @@
         <button id="home-copy" class="btn btn-ghost">Copy magic link 🔗</button>
       </div>
       <p id="home-copy-status" class="copy-status"></p>
+    </div>
+
+    <!-- Birthday Call form -->
+    <div class="home-form hidden" id="form-call" data-form="call">
+      <label for="call-from">Your name</label>
+      <input id="call-from" type="text" maxlength="30" placeholder="e.g. Advik" />
+      <label for="call-name">Their name</label>
+      <input id="call-name" type="text" maxlength="30" placeholder="who's receiving the call?" />
+      <label for="call-msg">Your message (optional)</label>
+      <textarea id="call-msg" maxlength="200" rows="2" placeholder="A line they’ll see during the call…"></textarea>
+      <label for="call-video">Video link (YouTube, Drive, or Dropbox)</label>
+      <input id="call-video" type="url" placeholder="https://youtube.com/watch?v=…" />
+
+      <div class="home-actions">
+        <button id="call-create" class="btn btn-primary">Start the call 📞</button>
+        <button id="call-copy" class="btn btn-ghost">Copy magic link 🔗</button>
+      </div>
+      <p id="call-copy-status" class="copy-status"></p>
     </div>
 
     <footer class="home-about">

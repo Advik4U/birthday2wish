@@ -1,11 +1,12 @@
-// Rewrites the Open Graph tags per request so chat link previews show the
-// sender's name (crawlers don't run JavaScript, so this must happen server-side).
+// Rewrites Open Graph tags so chat previews show the sender's name.
+// Crawlers don't run JavaScript, so this must happen server-side.
 export default async (request, context) => {
   const response = await context.next();
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("text/html")) return response;
 
   const url = new URL(request.url);
+  const isCall = url.pathname.includes("call");
   let sender = (url.searchParams.get("from") || "").trim();
   let name = (
     url.searchParams.get("HappyBirthdaySurprise") ||
@@ -13,7 +14,6 @@ export default async (request, context) => {
     ""
   ).trim();
 
-  // legacy ?w= token links
   const token = url.searchParams.get("w");
   if (token && !sender && !name) {
     try {
@@ -23,11 +23,11 @@ export default async (request, context) => {
       sender = String(wish.f || "").trim();
       name = String(wish.n || "").trim();
     } catch {
-      // malformed token: fall through to the default tags
+      // ignore malformed tokens
     }
   }
 
-  if (!sender && !name) return response;
+  if (!sender && !name && !isCall) return response;
 
   const esc = (s) =>
     s
@@ -39,12 +39,18 @@ export default async (request, context) => {
 
   const who = sender ? esc(sender) : "Someone";
   const forWhom = name ? esc(name) : "you";
-  const title = sender
-    ? `🎂 A birthday surprise from ${who}`
-    : "A Birthday Surprise 🎂";
-  const description =
-    `${who} made an interactive birthday surprise just for ${forWhom}. ` +
-    `Open the gift, blow out the candles, cut the cake.`;
+
+  let title;
+  let description;
+  if (isCall || url.searchParams.has("v")) {
+    title = sender ? `📞 ${who} is calling…` : "Incoming Birthday Call 📞";
+    description = `${who} is calling ${forWhom} with a birthday video wish. Answer to watch.`;
+  } else {
+    title = sender ? `🎂 A birthday surprise from ${who}` : "A Birthday Surprise 🎂";
+    description =
+      `${who} made an interactive birthday surprise just for ${forWhom}. ` +
+      `Open the gift, blow out the candles, cut the cake.`;
+  }
 
   let html = await response.text();
   html = html
@@ -68,4 +74,4 @@ export default async (request, context) => {
   });
 };
 
-export const config = { path: ["/", "/index.html"] };
+export const config = { path: ["/", "/index.html", "/call.html", "/call"] };

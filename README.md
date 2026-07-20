@@ -1,44 +1,50 @@
-# 🎂 Interactive Birthday Wish Website
+# Interactive Birthday Wish Website
 
-A zero-dependency, single-page birthday surprise built with vanilla HTML, CSS and JavaScript.
+Zero-dependency birthday surprises built with vanilla HTML, CSS and JavaScript. Two templates share one home page.
 
-## The experience
+## Templates
 
-0. **Home page** — visiting with no URL parameters shows a creator form: enter your name, their name, and a message, then begin the surprise or copy a shareable magic link.
-1. **Gift box intro** — a bouncing gift box; tapping it pops the lid with confetti.
-2. **Personalized greeting** — the birthday person's name in glowing script, with a typewriter message.
-3. **Blow out the candles** — a layered cake with 5 flickering candles. Blow into the **microphone** to extinguish them (real blow detection via the Web Audio API), or tap the flames as a fallback.
-4. **Celebration** — confetti rain, fireworks, floating balloons you can pop, flip-to-reveal wish cards, and a fully **synthesized "Happy Birthday" melody** (no audio files).
+### Gift & Cake
+1. Gift box intro with confetti  
+2. Personalized greeting + typewriter message  
+3. Blow out candles (microphone or tap)  
+4. Cake-cutting ceremony  
+5. Celebration with song, balloons, wish cards  
 
-Throughout: gold dust trails your cursor, and shooting stars occasionally cross the night sky.
+### Birthday Call (new)
+1. Incoming call UI — “[Sender] is calling…” with ringtone  
+2. Answer → their pasted video plays inside the phone call  
+3. Decline still delivers the typed birthday note  
+4. Hang up → Happy Birthday end card + guiding light home  
 
-## Personalize it
+Supported video links: YouTube (primary), Google Drive preview, Dropbox / direct links (open fallback).
 
-The home page form generates a celebratory magic link that reads like the
-greeting itself:
+## Home page
+
+Visit with no parameters to pick a template, fill names / message / video URL, then begin or copy a magic link.
+
+Gift link example:
 
 ```
-index.html?HappyBirthdaySurprise=Advik&from=Sai&msg=Have%20an%20amazing%20day
+/?HappyBirthdaySurprise=Advik&from=Sai&msg=Have%20an%20amazing%20day
 ```
 
-- `HappyBirthdaySurprise` — the birthday person's name (default: "Friend")
-- `from` — the sender's name, shown on the opening screen ("Sai sent you a surprise")
-- `msg` — a custom greeting message (default provided)
+Call link example:
 
-Older link formats (`?name=…` and encoded `?w=…` tokens) keep working too.
+```
+/call.html?HappyBirthdaySurprise=Advik&from=Sai&msg=Miss%20you&v=https://youtube.com/watch?v=...
+```
 
-Or just use the home page form, which generates and copies the magic link for you. On the final celebration screen, a floating golden light leads viewers back to the home page to make their own.
+Chat previews are personalized via a Netlify Edge Function (`netlify/edge-functions/og.js`).
 
-## Run it
-
-Microphone access requires a secure context, so serve over localhost rather than opening the file directly:
+## Run locally
 
 ```bash
 cd birthday-wish
 python3 -m http.server 8000
-# open http://localhost:8000?name=YourFriend
+# open http://localhost:8000/
 ```
 
-## Host it
+## Deploy
 
-It's fully static — drop the three files on GitHub Pages, Netlify, Vercel, or any static host and share the link.
+Static site + Netlify Edge Function for OG tags. Push to the connected GitHub repo and Netlify auto-deploys.
